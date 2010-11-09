@@ -1,0 +1,140 @@
+﻿{
+module internal System.Linq.SourceCode.C.Ansi.Lexer
+
+open System
+open System.Linq.SourceCode.C.Ansi.Parser
+
+ 
+let keywords = [ 
+    ("auto"         , AUTO );
+    ("break"        , BREAK );
+    ("case"         , CASE );
+    ("char"         , CHAR );
+    ("const"        , CONST );
+    ("continue"     , CONTINUE );
+    ("default"      , DEFAULT );
+    ("do"           , DO );
+    ("double"       , DOUBLE );
+    ("else"         , ELSE );
+    ("enum"         , ENUM );
+    ("extern"       , EXTERN );
+    ("float"        , FLOAT );
+    ("for"          , FOR );
+    ("goto"         , GOTO );
+    ("if"           , IF );
+    ("int"          , INT );
+    ("long"         , LONG );
+    ("register"     , REGISTER );
+    ("return"       , RETURN );
+    ("short"        , SHORT );
+    ("signed"       , SIGNED );
+    ("sizeof"       , SIZEOF );
+    ("static"       , STATIC );
+    ("struct"       , STRUCT );
+    ("switch"       , SWITCH );
+    ("typedef"      , TYPEDEF );
+    ("union"        , UNION );
+    ("unsigned"     , UNSIGNED );
+    ("void"         , VOID );
+    ("volatile"     , VOLATILE );
+    ("while"        , WHILE );]
+
+let keywordsMap = Map.ofList keywords
+
+let checkForKeyword lexbuf tokenText =
+   if keywordsMap.ContainsKey(tokenText) then keywordsMap.Item(tokenText)
+   else IDENTIFIER tokenText
+}
+
+let D =  ['0'-'9']+
+let L =  ['a'-'z''A'-'Z''_']
+let H =  ['a'-'f''A'-'F''0'-'9']
+let E =  ('E'|'e')('+'|'-')?D+
+let FS = ('f'|'F'|'l'|'L')
+let IS = ('u'|'U'|'l'|'L')*
+let newline = '\n' | '\r' '\n'
+let special = '\\'('"'|'n'|'r'|'\t'|'0'|'a'|'\\')
+
+rule token = parse      
+    | newline    { lexbuf.EndPos <- lexbuf.EndPos.NextLine; token lexbuf }      
+    | "\\*"      { block_comment lexbuf; token lexbuf }
+    | "//"[^'/''\n'][^'\n']*'\n' { lexbuf.EndPos <- lexbuf.EndPos.NextLine; token lexbuf }      
+                       
+    | L(L|D)*    { checkForKeyword lexbuf (String(lexbuf.Lexeme))}
+    | "0"("x"|"X")H+IS?  { CONSTANT (String(lexbuf.Lexeme))}
+    | "0"D+IS?		{ CONSTANT (String(lexbuf.Lexeme))}
+    | D+IS?		    { CONSTANT (String(lexbuf.Lexeme))}
+    | 'L'?"'"(special | [^'\''])+"'"	{ CONSTANT (String(lexbuf.Lexeme))}
+
+    | D+ E FS?		{ CONSTANT (String(lexbuf.Lexeme))}
+    | D*"."D+E?FS?	{ CONSTANT (String(lexbuf.Lexeme))}
+    | D"."D*E?FS?	{ CONSTANT (String(lexbuf.Lexeme))}
+
+    | 'L'?'"'(special | [^'"'])*'"'	{ STRING_LITERAL (String(lexbuf.Lexeme))}
+
+   
+	
+	| "->"       { PTR_OP }
+	
+	| "++"       { INC_OP }
+	| "--"       { DEC_OP }
+    
+    | "?"        { TETRNARY_OP }
+    
+    | "+"        { ADD_OP }
+    | "-"        { SUB_OP }
+    | "*"        { MUL_OP }
+    | "/"        { DIV_OP }
+    | "%"        { MOD_OP }
+    | "&"        { AND_OP }
+    | "|"        { OR_OP  }
+    | "~"        { NOT_OP }
+    | "^"        { XOR_OP } 
+    
+    | "<"        { LT_OP  }
+    | ">"        { GT_OP  }
+    | "<="       { LE_OP  }
+    | ">="       { GE_OP  }
+    | "=="       { EQ_OP  }
+    | "!="       { NE_OP  }
+    
+    | "&&"       { LOGICAL_AND_OP }
+    | "||"       { LOGICAL_OR_OP  }
+    | "!"        { LOGICAL_NOT_OP }
+    
+    | "<<"       { LEFT_OP  }
+    | ">>"       { RIGHT_OP }
+    
+    | "..."     { ELLIPSIS  }
+    | "."       { DOT       }
+    | ","       { COMMA     }
+    | ":"       { COLON     }
+    | ";"       { SEMICOLON }
+    
+    | "="        { ASSIGN       }
+    | "<<="      { LEFT_ASSIGN  }
+    | ">>="      { RIGHT_ASSIGN }
+    | "^="       { XOR_ASSIGN   }
+    | "|="       { OR_ASSIGN    }
+    | "&="       { AND_ASSIGN   }
+    | "*="       { MUL_ASSIGN   } 
+    | "/="       { DIV_ASSIGN   }
+    | "%="       { MOD_ASSIGN   }
+    | "-="       { SUB_ASSIGN   }
+    | "+="       { ADD_ASSIGN   }
+   
+    | "("        { L_ROUND_BRACKET }
+    | ")"        { R_ROUND_BRACKET }
+    | "{"        { L_CURRLY_BRACKET }
+    | "}"        { R_CURRLY_BRACKET }
+    | ("["|"<:") { L_SQUARE_BRACKET }
+    | ("]"|":>") { R_SQUARE_BRACKET }
+    
+    | eof        { EOF }                                           
+    | _          { token lexbuf }
+
+and block_comment = parse
+    | newline    { lexbuf.EndPos <- lexbuf.EndPos.NextLine; block_comment lexbuf } 
+    | "*\\"      { () }
+    | _          { block_comment lexbuf }   
+    | eof        { failwith "Unterminated block comment" }                                           

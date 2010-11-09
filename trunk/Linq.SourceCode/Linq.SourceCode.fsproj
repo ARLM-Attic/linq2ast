@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{a6504706-7ee9-4fab-accc-2954186607d8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Linq.SourceCode</RootNamespace>
+    <AssemblyName>Linq.SourceCode</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <Name>Linq.SourceCode</Name>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <Tailcalls>false</Tailcalls>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <Tailcalls>true</Tailcalls>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+  </PropertyGroup>
+  <!-- ANSIC files-->
+  <PropertyGroup>
+    <FsLexUnicode>True</FsLexUnicode>
+    <FsLexOutputFolder>C\Ansi\</FsLexOutputFolder>
+    <FsYaccOutputFolder>C\Ansi\</FsYaccOutputFolder>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
+  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
+  <Import Project="$(MSBuildExtensionsPath)\FSharp\1.0\FSharp.PowerPack.Targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	     Other similar extension points exist, see Microsoft.Common.targets.
+	<Target Name="BeforeBuild">
+	</Target>
+	<Target Name="AfterBuild">
+	</Target>
+	-->
+  <ItemGroup>
+    <Compile Include="Util\MutualRecursion.fs" />
+    <Compile Include="AstNode.fs" />
+    <Compile Include="AstNodeEqualityComparer.fs" />
+    <FsLex Include="C\Ansi\Lexer.fsl" />
+    <FsYacc Include="C\Ansi\Parser.fsy">
+      <OtherFlags>--module System.Linq.SourceCode.C.Ansi.Parser --internal</OtherFlags>
+    </FsYacc>
+    <Compile Include="C\Ansi\Core.fs" />
+    <Compile Include="C\Ansi\Declaration.fs" />
+    <Compile Include="C\Ansi\Declarator.fs" />
+    <Compile Include="C\Ansi\Enumerator.fs" />
+    <Compile Include="C\Ansi\Expressions.fs" />
+    <Compile Include="C\Ansi\Initializer.fs" />
+    <Compile Include="C\Ansi\Specifier.fs" />
+    <Compile Include="C\Ansi\Statement.fs" />
+    <Compile Include="C\Ansi\TypeName.fs" />
+    <Compile Include="C\Ansi\Parameter.fs" />
+    <Compile Include="C\Ansi\Pointer.fs" />
+    <Compile Include="C\Ansi\TranslationUnit.fs" />
+    <Compile Include="C\Ansi\Parser.fs" />
+    <Compile Include="C\Ansi\Lexer.fs" />
+    <Compile Include="C\Ansi\ParseMethods.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="FSharp.PowerPack, Version=2.0.0.0, Culture=neutral, PublicKeyToken=a19089b1c74d0809" />
+    <Reference Include="mscorlib" />
+    <Reference Include="FSharp.Core" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+</Project>
