@@ -47,6 +47,7 @@
 	-->
   <ItemGroup>
     <Compile Include="Util\MutualRecursion.fs" />
+    <Compile Include="AssemblyInfo.fs" />
     <Compile Include="AstNode.fs" />
     <Compile Include="AstNodeEqualityComparer.fs" />
     <FsLex Include="C\Ansi\Lexer.fsl" />
